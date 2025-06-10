@@ -11,8 +11,8 @@ set API_LEVEL=android-34
  rem --- IMPORTANT: SET YOUR TARGET API LEVEL HERE (e.g., android-34, android-33)
 
 set PLATFORM_TOOLS="%SDK_ROOT%\platform-tools"
-set BUILD_TOOLS="%SDK_ROOT%\build-tools\%BUILD_TOOLS_VERSION%"
-set PLATFORM_JAR="%SDK_ROOT%\platforms\%API_LEVEL%\android.jar"
+set BUILD_TOOLS=%SDK_ROOT%\build-tools\%BUILD_TOOLS_VERSION%
+set PLATFORM_JAR=%SDK_ROOT%\platforms\%API_LEVEL%\android.jar
 
 rem --- Output Directories ---
 set OUT_DIR=build
@@ -64,9 +64,9 @@ echo %DEX_DIR%
 echo %OBJ_DIR%
 echo Converting .class to .dex...
 
-rem "%BUILD_TOOLS%\d8.bat" --lib "%PLATFORM_JAR%" --output "%DEX_DIR%" "%OBJ_DIR%\com\example\myapp\*.class"
+"%BUILD_TOOLS%\d8.bat" --lib "%PLATFORM_JAR%" --output "%DEX_DIR%" "%OBJ_DIR%\*.class"
 pause
-call C:\Users\root\AppData\Local\Android\Sdk\build-tools\34.0.0\d8.bat --lib "C:\Users\root\AppData\Local\Android\Sdk\platforms\android-34\android.jar" --output "build\dex" build\obj\com\example\myapp\*.class
+rem call C:\Users\root\AppData\Local\Android\Sdk\build-tools\34.0.0\d8.bat --lib "C:\Users\root\AppData\Local\Android\Sdk\platforms\android-34\android.jar" --output "build\dex" build\obj\com\example\myapp\*.class
 if %errorlevel% neq 0 (
     echo DEX conversion failed.
     goto :eof
