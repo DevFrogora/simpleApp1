@@ -10,7 +10,7 @@ rem --- IMPORTANT: SET YOUR BUILD TOOLS VERSION HERE (e.g., 34.0.0, 33.0.0)
 set API_LEVEL=android-34
  rem --- IMPORTANT: SET YOUR TARGET API LEVEL HERE (e.g., android-34, android-33)
 
-set PLATFORM_TOOLS="%SDK_ROOT%\platform-tools"
+set PLATFORM_TOOLS=%SDK_ROOT%\platform-tools
 set BUILD_TOOLS=%SDK_ROOT%\build-tools\%BUILD_TOOLS_VERSION%
 set PLATFORM_JAR=%SDK_ROOT%\platforms\%API_LEVEL%\android.jar
 
@@ -22,15 +22,11 @@ set DEX_DIR=%OUT_DIR%\dex
 set APK_DIR=%OUT_DIR%\apk
 
 
-
 rem --- Cleanup ---
 echo Cleaning up...
 rd /s /q %OUT_DIR%
 
-
 mkdir %GEN_DIR% %OBJ_DIR% %DEX_DIR% %APK_DIR%
-
-
 
 rem --- 1. Generate R.java (Resource IDs) ---
 echo Generating R.java...
@@ -57,21 +53,28 @@ if %errorlevel% neq 0 (
     goto :eof
 )
 
-pause
 rem --- 3. Convert .class to .dex (Dalvik Executable) ---
-echo %BUILD_TOOLS%
-echo %DEX_DIR%
-echo %OBJ_DIR%
 echo Converting .class to .dex...
 
-"%BUILD_TOOLS%\d8.bat" --lib "%PLATFORM_JAR%" --output "%DEX_DIR%" "%OBJ_DIR%\*.class"
-pause
+rem "%BUILD_TOOLS%\d8.bat" --lib "%PLATFORM_JAR%" --output "%DEX_DIR%" "%OBJ_DIR%\*.class"
+
+dir /s /b "%OBJ_DIR%\*.class" > "%OUT_DIR%\classlist.txt" rem --- List all .class files
+
+rem making a variable to hold the class list
+setlocal enabledelayedexpansion
+set "CLASSLIST="
+for /f "usebackq delims=" %%f in ("%OUT_DIR%\classlist.txt") do (
+    set "CLASSLIST=!CLASSLIST! %%f"
+)
+call "%BUILD_TOOLS%\d8.bat" --lib "%PLATFORM_JAR%" --output "%DEX_DIR%" !CLASSLIST!
+
+rem "%BUILD_TOOLS%\d8.bat" --lib "%PLATFORM_JAR%" --output "%DEX_DIR%" @"%OUT_DIR%\classlist.txt"
 rem call C:\Users\root\AppData\Local\Android\Sdk\build-tools\34.0.0\d8.bat --lib "C:\Users\root\AppData\Local\Android\Sdk\platforms\android-34\android.jar" --output "build\dex" build\obj\com\example\myapp\*.class
 if %errorlevel% neq 0 (
     echo DEX conversion failed.
     goto :eof
 )
-pause
+
 rem --- 4. Package Resources and DEX into an Unsigned APK ---
 echo Packaging unsigned APK...
 "%BUILD_TOOLS%\aapt.exe" package -f -M AndroidManifest.xml -S res -I "%PLATFORM_JAR%" -F "%APK_DIR%\MyApp-unsigned.apk" "%DEX_DIR%"

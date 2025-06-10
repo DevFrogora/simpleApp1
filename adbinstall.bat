@@ -18,4 +18,5 @@ if %errorlevel%==0 (
 pause 
 del devices.txt
 
- 
+rem you can select the devices you want to install the apk on by using serial number
+rem adb install -s <serial_number> build\apk\MyApp-unsigned.apk
